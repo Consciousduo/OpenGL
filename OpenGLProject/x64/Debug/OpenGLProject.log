@@ -1,5 +1,0 @@
-﻿  Main.cpp
-f:\openglproject\openglproject\source\main.cpp(76): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-f:\openglproject\openglproject\source\main.cpp(53): warning C4101: 'EBO': unreferenced local variable
-  OpenGLProject.vcxproj -> F:\OpenGLProject\OpenGLProject\x64\Debug\OpenGLProject.exe
-  OpenGLProject.vcxproj -> F:\OpenGLProject\OpenGLProject\x64\Debug\OpenGLProject.pdb (Partial PDB)
