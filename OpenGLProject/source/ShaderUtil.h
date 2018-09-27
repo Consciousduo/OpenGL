@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 
 // Utitlity class to load, compile and attach a vertex- and fragment shader to a program
