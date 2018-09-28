@@ -23,6 +23,8 @@ public:
 	// Delete the program
 	void Delete();
 
+	unsigned int getProgramId();
+
 
 
 };

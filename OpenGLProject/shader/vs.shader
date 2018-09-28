@@ -1,11 +1,16 @@
 #version 410
 
+layout(location = 0) in vec4 vertexPosition;
 layout(location = 1) in vec3 vertexNormal;
-in vec3 position;
-out vec3 theNormal;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec3 normal;
 
 void main()
 {
-   gl_Position = vec4(position, 1.0);
-   theNormal = vertexNormal;
+	gl_Position = projection * view * vertexPosition;
+	
+	normal = vertexNormal;
 }

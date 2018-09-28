@@ -7,6 +7,12 @@
 #include <iostream>
 #include "ShaderUtil.h"
 #include "ObjLoader.h"
+#include <glm/vec3.hpp>
+#include <glm/vec2.hpp>
+#include <glm/glm.hpp>
+#include "glm/gtc/matrix_transform.hpp"
+#include <glm/gtc/type_ptr.hpp>
+
 
 
 int main(void)
@@ -42,13 +48,14 @@ int main(void)
 		// and finally draw something with modern OpenGL!
 		ShaderUtil shaderUtil;
 		shaderUtil.Load("shader/vs.shader", "shader/fs.shader");
+		shaderUtil.Use();
 
 		//Load Obj File
 		std::vector <glm::vec3> vertices;
 		std::vector <glm::vec2> uvs;
 		std::vector <glm::vec3> normals;
 		ObjLoader objLoader;
-		objLoader.loadFile("obj/rabbit/rabbit.obj", &vertices, &uvs, &normals);
+		objLoader.loadFile("obj/teapot/teapot.obj", &vertices, &uvs, &normals);
 
 		
 		GLuint vertexArrayObj;
@@ -73,11 +80,37 @@ int main(void)
 		glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-		
 		glBindVertexArray(0);
+		
+		
+		
+		//camera
+		glm::mat4 view = glm::lookAt(
+			glm::vec3(0.0f, 0.0f, -300.0f),
+			glm::vec3(0.0f, 0.03f, 0.0f),
+			glm::vec3(0.0f, 1.0f, 0.0f));
+
+		glm::mat4 projection;
+		projection = glm::perspective(45.0f, 1.0f, 0.01f, 1000.0f);
+
+		glm::mat4 model;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 
 
-		shaderUtil.Use();
+		// Get the uniform locations
+		GLint modelLoc = glGetUniformLocation(shaderUtil.getProgramId(), "model");
+		GLint viewLoc = glGetUniformLocation(shaderUtil.getProgramId(), "view");
+		GLint projLoc = glGetUniformLocation(shaderUtil.getProgramId(), "projection");
+
+		// Pass the matrices to the shader
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		
+
+		
+
+		
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
