@@ -18,7 +18,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+	window = glfwCreateWindow(1000, 1000, "Window", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -50,14 +50,30 @@ int main(void)
 		ObjLoader objLoader;
 		objLoader.loadFile("obj/rabbit/rabbit.obj", &vertices, &uvs, &normals);
 
-		GLuint VAO, VBO, EBO;
-		glGenVertexArrays(1, &VAO);
-		glBindVertexArray(VAO);
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
+		
+		GLuint vertexArrayObj;
+		glGenVertexArrays(1, &vertexArrayObj);
+		glBindVertexArray(vertexArrayObj);
+
+		GLuint VertexBuffer, NormalBuffer, UVBuffer;
+		glGenBuffers(1, &VertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), &vertices[0], GL_STATIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glGenBuffers(1, &NormalBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, NormalBuffer);
+		glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(glm::vec3), &normals[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+		glGenBuffers(1, &VertexBuffer);
+		glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
+		glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(glm::vec2), &uvs[0], GL_STATIC_DRAW);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+		
 		glBindVertexArray(0);
 
 
@@ -71,8 +87,7 @@ int main(void)
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			// Draw triangle
-			//glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-			glBindVertexArray(VAO);
+			glBindVertexArray(vertexArrayObj);
 			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 			glBindVertexArray(0);
 

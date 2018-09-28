@@ -1,8 +1,16 @@
-#version 400
+#version 410
 
+in vec3 theNormal;
 out vec4 color;
 
-void main ()  
-{     
-   color = vec4 (256.0, 0.0, 0.0, 1.0);  
+const vec3 ambient = vec3(0.1, 0.1, 0.1);
+const vec3 lightVecNormalized1 = normalize(vec3(0.4, 0.6, 2.0));
+const vec3 lightVecNormalized2 = normalize(vec3(0.6, 0.4, -2.0));
+vec3 lightColor = vec3(0.1, 0.7, 0.6);
+
+void main()
+{
+	float diffuse1 = clamp(dot(lightVecNormalized1, normalize(theNormal)), 0.0, 1.0);
+	float diffuse2 = clamp(dot(lightVecNormalized2, normalize(theNormal)), 0.0, 1.0);
+	color = vec4(ambient + diffuse1 * lightColor + diffuse2 * lightColor, 1.0);
 }
