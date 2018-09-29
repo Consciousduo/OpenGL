@@ -86,7 +86,7 @@ int main(void)
 		
 		//camera
 		glm::mat4 view = glm::lookAt(
-			glm::vec3(0.0f, 0.0f, -300.0f),
+			glm::vec3(0.0f, 0.0f, -100.0f),
 			glm::vec3(0.0f, 0.03f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -107,15 +107,9 @@ int main(void)
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		
-
-		
-
-		
-
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
-			
 			/* Render here */
 			glClear(GL_COLOR_BUFFER_BIT);
 
@@ -124,16 +118,12 @@ int main(void)
 			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
 			glBindVertexArray(0);
 
-
 			/* Swap front and back buffers */
 			glfwSwapBuffers(window);
-
 			/* Poll for and process events */
 			glfwPollEvents();
 		}
-
 		shaderUtil.Delete();
-
 	}
 
 	glfwTerminate();
