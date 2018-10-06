@@ -20,13 +20,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Main.cpp" />
-    <ClCompile Include="source\ObjLoader.cpp" />
     <ClCompile Include="source\ShaderUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
-    <ClInclude Include="source\ObjLoader.h" />
     <ClInclude Include="source\ShaderUtil.h" />
+    <ClInclude Include="source\tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shader\fs.shader" />

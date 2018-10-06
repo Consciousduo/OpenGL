@@ -5,7 +5,7 @@ out vec4 color;
 
 const vec3 ambient = vec3(0.2, 0.2, 0.2);
 const vec3 lightVecNormalized1 = normalize(vec3(1.0, 1.0, -1.0));
-vec3 lightColor = vec3(0.1, 0.7, 0.6);
+vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
 void main()
 {

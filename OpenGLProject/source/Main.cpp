@@ -1,17 +1,20 @@
 // This must be defined when statically linking to GLEW
 #define GLEW_STATIC
+#define TINYOBJLOADER_IMPLEMENTATION
 #include <GL/glew.h>
 #pragma comment (lib, "glew32s.lib")
 
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "ShaderUtil.h"
-#include "ObjLoader.h"
+#include "tiny_obj_loader.h"
+
 #include <glm/vec3.hpp>
 #include <glm/vec2.hpp>
 #include <glm/glm.hpp>
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
+
 
 
 
@@ -50,14 +53,46 @@ int main(void)
 		shaderUtil.Load("shader/vs.shader", "shader/fs.shader");
 		shaderUtil.Use();
 
+		//ObjLoader objLoader;
+		//objLoader.loadFile("obj/teapot/teapot.obj", &vertices, &uvs, &normals);
 		//Load Obj File
-		std::vector <glm::vec3> vertices;
-		std::vector <glm::vec2> uvs;
-		std::vector <glm::vec3> normals;
-		ObjLoader objLoader;
-		objLoader.loadFile("obj/teapot/teapot.obj", &vertices, &uvs, &normals);
+		//test tiny obj loader
+		tinyobj::attrib_t attrib;
+		std::vector<tinyobj::shape_t> shapes;
+		std::vector<tinyobj::material_t> materials;
+		std::string error;
+		//const char* filename = "obj/rabbit/rabbit.obj";
+		//const char* filename = "obj/teapot/teapot.obj";
+		const char* filename = "obj/lambo/lambo.obj";
+		tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename);
 
-		
+		std::vector <glm::vec3> vertices;
+		std::vector <glm::vec3> normals;
+		std::vector <glm::vec2> uvs;
+
+		std::vector <glm::vec3> temp_vertices;
+		std::vector <glm::vec3> temp_normals;
+		std::vector <glm::vec2> temp_uvs;
+
+		for (int i = 0; i < attrib.vertices.size() / 3; i++) {
+			temp_vertices.push_back(glm::vec3(attrib.vertices[i * 3 + 0], attrib.vertices[i * 3 + 1], attrib.vertices[i * 3 + 2]));
+		}
+		for (int i = 0; i < attrib.normals.size() / 3; i++) {
+			temp_normals.push_back(glm::vec3(attrib.normals[i * 3 + 0], attrib.normals[i * 3 + 1], attrib.normals[i * 3 + 2]));
+		}
+		for (int i = 0; i < attrib.texcoords.size() / 2; i++) {
+			temp_uvs.push_back(glm::vec2(attrib.texcoords[i * 2 + 0], attrib.texcoords[i * 2 + 1]));
+		}
+
+		std::vector<tinyobj::index_t> indices = shapes[0].mesh.indices;
+		for (int i = 0; i < indices.size(); i++) {
+			vertices.push_back(temp_vertices[indices[i].vertex_index]);
+			normals.push_back(temp_normals[indices[i].normal_index]);
+			uvs.push_back(temp_uvs[indices[i].texcoord_index]);
+		}
+
+
+
 		GLuint vertexArrayObj;
 		glGenVertexArrays(1, &vertexArrayObj);
 		glBindVertexArray(vertexArrayObj);
@@ -81,13 +116,11 @@ int main(void)
 		glEnableVertexAttribArray(2);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindVertexArray(0);
-		
-		
-		
+
 		//camera
 		glm::mat4 view = glm::lookAt(
-			glm::vec3(0.0f, 0.0f, -100.0f),
-			glm::vec3(0.0f, 0.03f, 0.0f),
+			glm::vec3(200.0f, 200.0f, 800.0f),
+			glm::vec3(0.0f, 0.0f, 0.0f),
 			glm::vec3(0.0f, 1.0f, 0.0f));
 
 		glm::mat4 projection;
@@ -106,13 +139,17 @@ int main(void)
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		
+
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
 			/* Render here */
-			glClear(GL_COLOR_BUFFER_BIT);
-
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			// Draw triangle
 			glBindVertexArray(vertexArrayObj);
 			glDrawArrays(GL_TRIANGLES, 0, vertices.size());
