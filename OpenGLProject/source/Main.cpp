@@ -15,8 +15,28 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 0.16f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+glm::vec3 cameraLookAt = glm::vec3(0.0f, 0.0f, 0.0f);
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	float cameraSpeed = 0.008f;
 
+	if (key == GLFW_KEY_W && action == GLFW_REPEAT) {
+		cameraPos += cameraSpeed * cameraFront;
+	}
+	if (key == GLFW_KEY_S && action == GLFW_REPEAT) {
+		cameraPos -= cameraSpeed * cameraFront;
+	}
+	if (key == GLFW_KEY_A && action == GLFW_REPEAT) {
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+	if (key == GLFW_KEY_D && action == GLFW_REPEAT) {
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	}
+}
 
 int main(void)
 {
@@ -27,12 +47,15 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(1000, 1000, "Window", NULL, NULL);
+	window = glfwCreateWindow(800, 800, "Window", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
 		return -1;
 	}
+
+	/* key call back */
+	glfwSetKeyCallback(window, key_callback);
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
@@ -53,17 +76,14 @@ int main(void)
 		shaderUtil.Load("shader/vs.shader", "shader/fs.shader");
 		shaderUtil.Use();
 
-		//ObjLoader objLoader;
-		//objLoader.loadFile("obj/teapot/teapot.obj", &vertices, &uvs, &normals);
-		//Load Obj File
-		//test tiny obj loader
+		//Loading Object
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
 		std::vector<tinyobj::material_t> materials;
 		std::string error;
-		//const char* filename = "obj/rabbit/rabbit.obj";
+		const char* filename = "obj/rabbit/rabbit.obj";
 		//const char* filename = "obj/teapot/teapot.obj";
-		const char* filename = "obj/lambo/lambo.obj";
+		//const char* filename = "obj/lambo/lambo.obj";
 		tinyobj::LoadObj(&attrib, &shapes, &materials, &error, filename);
 
 		std::vector <glm::vec3> vertices;
@@ -117,37 +137,27 @@ int main(void)
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 		glBindVertexArray(0);
 
-		//camera
-		glm::mat4 view = glm::lookAt(
-			glm::vec3(200.0f, 200.0f, 800.0f),
-			glm::vec3(0.0f, 0.0f, 0.0f),
-			glm::vec3(0.0f, 1.0f, 0.0f));
-
-		glm::mat4 projection;
-		projection = glm::perspective(45.0f, 1.0f, 0.01f, 1000.0f);
-
-		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-
-
-		// Get the uniform locations
-		GLint modelLoc = glGetUniformLocation(shaderUtil.getProgramId(), "model");
-		GLint viewLoc = glGetUniformLocation(shaderUtil.getProgramId(), "view");
-		GLint projLoc = glGetUniformLocation(shaderUtil.getProgramId(), "projection");
-
-		// Pass the matrices to the shader
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-
 
 		/* Loop until the user closes the window */
 		while (!glfwWindowShouldClose(window))
 		{
+			//camera
+			glm::mat4 model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+			glm::mat4 view = glm::lookAt(cameraPos, cameraLookAt, cameraUp);
+			glm::mat4 projection = glm::perspective(45.0f, 1.0f, 0.001f, 1000.0f);
+			
+			// Get the uniform locations
+			GLint modelLoc = glGetUniformLocation(shaderUtil.getProgramId(), "model");
+			GLint viewLoc = glGetUniformLocation(shaderUtil.getProgramId(), "view");
+			GLint projLoc = glGetUniformLocation(shaderUtil.getProgramId(), "projection");
+
+			// Pass the matrices to the shader
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
 			/* Render here */
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			// Draw triangle
